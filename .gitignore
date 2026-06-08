@@ -43,11 +43,11 @@ nbdist/
 *.swp
 
 # Old frontend backup
-ruoyi-ui-vue2/
+xyjiance-ui-vue2/
 
 # Frontend
-ruoyi-ui/node_modules/
-ruoyi-ui/dist/
+xyjiance-ui/node_modules/
+xyjiance-ui/dist/
 
 !*/build/*.java
 !*/build/*.html

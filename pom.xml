@@ -4,16 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-    <groupId>com.ruoyi</groupId>
-    <artifactId>ruoyi</artifactId>
+    <groupId>com.xyjiance</groupId>
+    <artifactId>xyjiance</artifactId>
     <version>3.9.2</version>
 
-    <name>ruoyi</name>
-    <url>http://www.ruoyi.vip</url>
-    <description>若依管理系统</description>
-    
+    <name>xyjiance</name>
+    <description>集信管理系统</description>
+
     <properties>
-        <ruoyi.version>3.9.2</ruoyi.version>
+        <xyjiance.version>3.9.2</xyjiance.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
@@ -137,49 +136,49 @@
 
             <!-- 定时任务-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-quartz</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.xyjiance</groupId>
+                <artifactId>xyjiance-quartz</artifactId>
+                <version>${xyjiance.version}</version>
             </dependency>
 
             <!-- 代码生成-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-generator</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.xyjiance</groupId>
+                <artifactId>xyjiance-generator</artifactId>
+                <version>${xyjiance.version}</version>
             </dependency>
 
             <!-- 核心模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-framework</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.xyjiance</groupId>
+                <artifactId>xyjiance-framework</artifactId>
+                <version>${xyjiance.version}</version>
             </dependency>
 
             <!-- 系统模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-system</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.xyjiance</groupId>
+                <artifactId>xyjiance-system</artifactId>
+                <version>${xyjiance.version}</version>
             </dependency>
 
             <!-- 通用工具-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-common</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.xyjiance</groupId>
+                <artifactId>xyjiance-common</artifactId>
+                <version>${xyjiance.version}</version>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <modules>
-        <module>ruoyi-admin</module>
-        <module>ruoyi-framework</module>
-        <module>ruoyi-system</module>
-        <module>ruoyi-quartz</module>
-        <module>ruoyi-generator</module>
-        <module>ruoyi-common</module>
+        <module>xyjiance-admin</module>
+        <module>xyjiance-framework</module>
+        <module>xyjiance-system</module>
+        <module>xyjiance-quartz</module>
+        <module>xyjiance-generator</module>
+        <module>xyjiance-common</module>
     </modules>
     <packaging>pom</packaging>
 
