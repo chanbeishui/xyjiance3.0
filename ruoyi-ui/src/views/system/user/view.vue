@@ -1,5 +1,5 @@
 <template>
-  <el-drawer title="用户信息详情" :visible.sync="visible" direction="rtl" size="68%" append-to-body :before-close="handleClose" custom-class="detail-drawer">
+  <el-drawer title="用户信息详情" v-model="visible" direction="rtl" size="68%" append-to-body :before-close="handleClose" class="detail-drawer">
     <div v-loading="loading" class="drawer-content">
       <!-- 基本信息 -->
       <h4 class="section-header">基本信息</h4>
@@ -125,53 +125,51 @@
   </el-drawer>
 </template>
 
-<script>
+<script setup>
 import { getUser } from '@/api/system/user'
 
-export default {
-  name: 'UserViewDrawer',
-  dicts: ['sys_user_sex'],
-  data() {
-    return {
-      visible: false,
-      loading: false,
-      info: {},
-      postOptions: [],
-      roleOptions: []
-    }
-  },
-  computed: {
-    sexLabel() {
-      return this.selectDictLabel(this.dict.type.sys_user_sex, this.info.sex) || '-'
-    },
-    postNames() {
-      if (!this.postOptions.length) return ''
-      const ids = this.info.postIds || []
-      return this.postOptions.filter(p => ids.includes(p.postId)).map(p => p.postName).join('、') || ''
-    },
-    roleNames() {
-      if (!this.roleOptions.length) return ''
-      const ids = this.info.roleIds || []
-      return this.roleOptions.filter(r => ids.includes(r.roleId)).map(r => r.roleName).join('、') || ''
-    }
-  },
-  methods: {
-    open(userId) {
-      this.visible = true
-      this.loading = true
-      getUser(userId).then(res => {
-        this.info = res.data || {}
-        this.postOptions = res.posts || []
-        this.roleOptions = res.roles || []
-        this.info.postIds = res.postIds || []
-        this.info.roleIds = res.roleIds || []
-      }).finally(() => {
-        this.loading = false
-      })
-    },
-    handleClose() {
-      this.visible = false
-    }
+const visible = ref(false)
+const loading = ref(false)
+const info = reactive({})
+const postOptions = ref([])
+const roleOptions = ref([])
+
+const { sys_user_sex } = useDict("sys_user_sex")
+
+const sexLabel = computed(() => selectDictLabel(sys_user_sex.value, info.sex) || '-')
+
+const postNames = computed(() => {
+  if (!postOptions.value.length || !info.postIds) return ''
+  return postOptions.value.filter(p => info.postIds?.includes(p.postId)).map(p => p.postName).join('、') || ''
+})
+
+const roleNames = computed(() => {
+  if (!roleOptions.value.length || !info.roleIds) return ''
+  return roleOptions.value.filter(r => info.roleIds?.includes(r.roleId)).map(r => r.roleName).join('、') || ''
+})
+
+const open = async (userId) => {
+  visible.value = true
+  loading.value = true
+  try {
+    const res = await getUser(userId)
+    Object.assign(info, res.data || {})
+    postOptions.value = res.posts || []
+    roleOptions.value = res.roles || []
+    info.postIds = res.postIds || []
+    info.roleIds = res.roleIds || []
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  } finally {
+    loading.value = false
   }
 }
+
+function handleClose() {
+  visible.value = false
+}
+
+defineExpose({
+  open
+})
 </script>

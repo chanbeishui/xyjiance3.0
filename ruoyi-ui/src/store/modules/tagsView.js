@@ -1,10 +1,10 @@
-import store from '@/store'
 import cache from '@/plugins/cache'
+import useSettingsStore from '@/store/modules/settings'
 
 const PERSIST_KEY = 'tags-view-visited'
 
 function isPersistEnabled() {
-  return store.state.settings.tagsViewPersist
+  return useSettingsStore().tagsViewPersist
 }
 
 function saveVisitedViews(views) {
@@ -21,255 +21,206 @@ function clearVisitedViews() {
   cache.local.remove(PERSIST_KEY)
 }
 
-const state = {
-  visitedViews: [],
-  cachedViews: [],
-  iframeViews: []
-}
+const useTagsViewStore = defineStore(
+  'tags-view',
+  {
+    state: () => ({
+      visitedViews: [],
+      cachedViews: [],
+      iframeViews: []
+    }),
+    actions: {
+      addView(view) {
+        this.addVisitedView(view)
+        this.addCachedView(view)
+      },
+      addIframeView(view) {
+        if (this.iframeViews.some(v => v.path === view.path)) return
+        this.iframeViews.push(
+          Object.assign({}, view, {
+            title: view.meta.title || 'no-name'
+          })
+        )
+      },
+      addVisitedView(view) {
+        if (this.visitedViews.some(v => v.path === view.path)) return
+        this.visitedViews.push(
+          Object.assign({}, view, {
+            title: view.meta.title || 'no-name'
+          })
+        )
+        saveVisitedViews(this.visitedViews)
+      },
+      addAffixView(view) {
+        if (this.visitedViews.some(v => v.path === view.path)) return
+        this.visitedViews.unshift(
+          Object.assign({}, view, {
+            title: view.meta.title || 'no-name'
+          })
+        )
+      },
+      addCachedView(view) {
+        if (this.cachedViews.includes(view.name)) return
+        if (!view.meta.noCache) {
+          this.cachedViews.push(view.name)
+        }
+      },
+      delView(view) {
+        return new Promise(resolve => {
+          this.delVisitedView(view)
+          this.delCachedView(view)
+          resolve({
+            visitedViews: [...this.visitedViews],
+            cachedViews: [...this.cachedViews]
+          })
+        })
+      },
+      delVisitedView(view) {
+        return new Promise(resolve => {
+          for (const [i, v] of this.visitedViews.entries()) {
+            if (v.path === view.path) {
+              this.visitedViews.splice(i, 1)
+              break
+            }
+          }
+          this.iframeViews = this.iframeViews.filter(item => item.path !== view.path)
+          saveVisitedViews(this.visitedViews)
+          resolve([...this.visitedViews])
+        })
+      },
+      delIframeView(view) {
+        return new Promise(resolve => {
+          this.iframeViews = this.iframeViews.filter(item => item.path !== view.path)
+          resolve([...this.iframeViews])
+        })
+      },
+      delCachedView(view) {
+        return new Promise(resolve => {
+          const index = this.cachedViews.indexOf(view.name)
+          index > -1 && this.cachedViews.splice(index, 1)
+          resolve([...this.cachedViews])
+        })
+      },
+      delOthersViews(view) {
+        return new Promise(resolve => {
+          this.delOthersVisitedViews(view)
+          this.delOthersCachedViews(view)
+          resolve({
+            visitedViews: [...this.visitedViews],
+            cachedViews: [...this.cachedViews]
+          })
+        })
+      },
+      delOthersVisitedViews(view) {
+        return new Promise(resolve => {
+          this.visitedViews = this.visitedViews.filter(v => {
+            return v.meta.affix || v.path === view.path
+          })
+          this.iframeViews = this.iframeViews.filter(item => item.path === view.path)
+          saveVisitedViews(this.visitedViews)
+          resolve([...this.visitedViews])
+        })
+      },
+      delOthersCachedViews(view) {
+        return new Promise(resolve => {
+          const index = this.cachedViews.indexOf(view.name)
+          if (index > -1) {
+            this.cachedViews = this.cachedViews.slice(index, index + 1)
+          } else {
+            this.cachedViews = []
+          }
+          resolve([...this.cachedViews])
+        })
+      },
+      delAllViews(view) {
+        return new Promise(resolve => {
+          this.delAllVisitedViews(view)
+          this.delAllCachedViews(view)
+          resolve({
+            visitedViews: [...this.visitedViews],
+            cachedViews: [...this.cachedViews]
+          })
+        })
+      },
+      delAllVisitedViews(view) {
+        return new Promise(resolve => {
+          const affixTags = this.visitedViews.filter(tag => tag.meta.affix)
+          this.visitedViews = affixTags
+          this.iframeViews = []
+          clearVisitedViews()
+          resolve([...this.visitedViews])
+        })
+      },
+      delAllCachedViews(view) {
+        return new Promise(resolve => {
+          this.cachedViews = []
+          resolve([...this.cachedViews])
+        })
+      },
+      updateVisitedView(view) {
+        for (let v of this.visitedViews) {
+          if (v.path === view.path) {
+            v = Object.assign(v, view)
+            break
+          }
+        }
+      },
+      delRightTags(view) {
+        return new Promise(resolve => {
+          const index = this.visitedViews.findIndex(v => v.path === view.path)
+          if (index === -1) {
+            return
+          }
+          this.visitedViews = this.visitedViews.filter((item, idx) => {
+            if (idx <= index || (item.meta && item.meta.affix)) {
+              return true
+            }
+            const i = this.cachedViews.indexOf(item.name)
+            if (i > -1) {
+              this.cachedViews.splice(i, 1)
+            }
+            if(item.meta.link) {
+              const fi = this.iframeViews.findIndex(v => v.path === item.path)
+              this.iframeViews.splice(fi, 1)
+            }
+            return false
+          })
+          saveVisitedViews(this.visitedViews)
+          resolve([...this.visitedViews])
+        })
+      },
+      delLeftTags(view) {
+        return new Promise(resolve => {
+          const index = this.visitedViews.findIndex(v => v.path === view.path)
+          if (index === -1) {
+            return
+          }
+          this.visitedViews = this.visitedViews.filter((item, idx) => {
+            if (idx >= index || (item.meta && item.meta.affix)) {
+              return true
+            }
+            const i = this.cachedViews.indexOf(item.name)
+            if (i > -1) {
+              this.cachedViews.splice(i, 1)
+            }
+            if(item.meta.link) {
+              const fi = this.iframeViews.findIndex(v => v.path === item.path)
+              this.iframeViews.splice(fi, 1)
+            }
+            return false
+          })
+          saveVisitedViews(this.visitedViews)
+          resolve([...this.visitedViews])
+        })
+      },
+      // 恢复持久化的 tags
+      loadPersistedViews() {
+        const views = loadVisitedViews()
+        views.forEach(view => {
+          this.addVisitedView(view)
+        })
+      }
+    }
+  })
 
-const mutations = {
-  ADD_IFRAME_VIEW: (state, view) => {
-    if (state.iframeViews.some(v => v.path === view.path)) return
-    state.iframeViews.push(
-      Object.assign({}, view, {
-        title: view.meta.title || 'no-name'
-      })
-    )
-  },
-  ADD_VISITED_VIEW: (state, view) => {
-    if (state.visitedViews.some(v => v.path === view.path)) return
-    state.visitedViews.push(
-      Object.assign({}, view, {
-        title: view.meta.title || 'no-name'
-      })
-    )
-    saveVisitedViews(state.visitedViews)
-  },
-  ADD_VISITED_VIEW_FIRST: (state, view) => {
-    if (state.visitedViews.some(v => v.path === view.path)) return
-    state.visitedViews.unshift(
-      Object.assign({}, view, {
-        title: view.meta.title || 'no-name'
-      })
-    )
-  },
-  ADD_CACHED_VIEW: (state, view) => {
-    if (state.cachedViews.includes(view.name)) return
-    if (view.meta && !view.meta.noCache) {
-      state.cachedViews.push(view.name)
-    }
-  },
-  DEL_VISITED_VIEW: (state, view) => {
-    for (const [i, v] of state.visitedViews.entries()) {
-      if (v.path === view.path) {
-        state.visitedViews.splice(i, 1)
-        break
-      }
-    }
-    state.iframeViews = state.iframeViews.filter(item => item.path !== view.path)
-    saveVisitedViews(state.visitedViews)
-  },
-  DEL_IFRAME_VIEW: (state, view) => {
-    state.iframeViews = state.iframeViews.filter(item => item.path !== view.path)
-  },
-  DEL_CACHED_VIEW: (state, view) => {
-    const index = state.cachedViews.indexOf(view.name)
-    index > -1 && state.cachedViews.splice(index, 1)
-  },
-
-  DEL_OTHERS_VISITED_VIEWS: (state, view) => {
-    state.visitedViews = state.visitedViews.filter(v => {
-      return v.meta.affix || v.path === view.path
-    })
-    state.iframeViews = state.iframeViews.filter(item => item.path === view.path)
-    saveVisitedViews(state.visitedViews)
-  },
-  DEL_OTHERS_CACHED_VIEWS: (state, view) => {
-    const index = state.cachedViews.indexOf(view.name)
-    if (index > -1) {
-      state.cachedViews = state.cachedViews.slice(index, index + 1)
-    } else {
-      state.cachedViews = []
-    }
-  },
-  DEL_ALL_VISITED_VIEWS: state => {
-    // keep affix tags
-    const affixTags = state.visitedViews.filter(tag => tag.meta.affix)
-    state.visitedViews = affixTags
-    state.iframeViews = []
-    clearVisitedViews()
-  },
-  DEL_ALL_CACHED_VIEWS: state => {
-    state.cachedViews = []
-  },
-  UPDATE_VISITED_VIEW: (state, view) => {
-    for (let v of state.visitedViews) {
-      if (v.path === view.path) {
-        v = Object.assign(v, view)
-        break
-      }
-    }
-  },
-  DEL_RIGHT_VIEWS: (state, view) => {
-    const index = state.visitedViews.findIndex(v => v.path === view.path)
-    if (index === -1) {
-      return
-    }
-    state.visitedViews = state.visitedViews.filter((item, idx) => {
-      if (idx <= index || (item.meta && item.meta.affix)) {
-        return true
-      }
-      const i = state.cachedViews.indexOf(item.name)
-      if (i > -1) {
-        state.cachedViews.splice(i, 1)
-      }
-      if(item.meta.link) {
-        const fi = state.iframeViews.findIndex(v => v.path === item.path)
-        state.iframeViews.splice(fi, 1)
-      }
-      return false
-    })
-    saveVisitedViews(state.visitedViews)
-  },
-  DEL_LEFT_VIEWS: (state, view) => {
-    const index = state.visitedViews.findIndex(v => v.path === view.path)
-    if (index === -1) {
-      return
-    }
-    state.visitedViews = state.visitedViews.filter((item, idx) => {
-      if (idx >= index || (item.meta && item.meta.affix)) {
-        return true
-      }
-      const i = state.cachedViews.indexOf(item.name)
-      if (i > -1) {
-        state.cachedViews.splice(i, 1)
-      }
-      if(item.meta.link) {
-        const fi = state.iframeViews.findIndex(v => v.path === item.path)
-        state.iframeViews.splice(fi, 1)
-      }
-      return false
-    })
-    saveVisitedViews(state.visitedViews)
-  }
-}
-
-const actions = {
-  addView({ dispatch }, view) {
-    dispatch('addVisitedView', view)
-    dispatch('addCachedView', view)
-  },
-  addIframeView({ commit }, view) {
-    commit('ADD_IFRAME_VIEW', view)
-  },
-  addVisitedView({ commit }, view) {
-    commit('ADD_VISITED_VIEW', view)
-  },
-  addAffixView({ commit }, view) {
-    commit('ADD_VISITED_VIEW_FIRST', view)
-  },
-  addCachedView({ commit }, view) {
-    commit('ADD_CACHED_VIEW', view)
-  },
-  delView({ dispatch, state }, view) {
-    return new Promise(resolve => {
-      dispatch('delVisitedView', view)
-      dispatch('delCachedView', view)
-      resolve({
-        visitedViews: [...state.visitedViews],
-        cachedViews: [...state.cachedViews]
-      })
-    })
-  },
-  delVisitedView({ commit, state }, view) {
-    return new Promise(resolve => {
-      commit('DEL_VISITED_VIEW', view)
-      resolve([...state.visitedViews])
-    })
-  },
-  delIframeView({ commit, state }, view) {
-    return new Promise(resolve => {
-      commit('DEL_IFRAME_VIEW', view)
-      resolve([...state.iframeViews])
-    })
-  },
-  delCachedView({ commit, state }, view) {
-    return new Promise(resolve => {
-      commit('DEL_CACHED_VIEW', view)
-      resolve([...state.cachedViews])
-    })
-  },
-  delOthersViews({ dispatch, state }, view) {
-    return new Promise(resolve => {
-      dispatch('delOthersVisitedViews', view)
-      dispatch('delOthersCachedViews', view)
-      resolve({
-        visitedViews: [...state.visitedViews],
-        cachedViews: [...state.cachedViews]
-      })
-    })
-  },
-  delOthersVisitedViews({ commit, state }, view) {
-    return new Promise(resolve => {
-      commit('DEL_OTHERS_VISITED_VIEWS', view)
-      resolve([...state.visitedViews])
-    })
-  },
-  delOthersCachedViews({ commit, state }, view) {
-    return new Promise(resolve => {
-      commit('DEL_OTHERS_CACHED_VIEWS', view)
-      resolve([...state.cachedViews])
-    })
-  },
-  delAllViews({ dispatch, state }, view) {
-    return new Promise(resolve => {
-      dispatch('delAllVisitedViews', view)
-      dispatch('delAllCachedViews', view)
-      resolve({
-        visitedViews: [...state.visitedViews],
-        cachedViews: [...state.cachedViews]
-      })
-    })
-  },
-  delAllVisitedViews({ commit, state }) {
-    return new Promise(resolve => {
-      commit('DEL_ALL_VISITED_VIEWS')
-      resolve([...state.visitedViews])
-    })
-  },
-  delAllCachedViews({ commit, state }) {
-    return new Promise(resolve => {
-      commit('DEL_ALL_CACHED_VIEWS')
-      resolve([...state.cachedViews])
-    })
-  },
-  updateVisitedView({ commit }, view) {
-    commit('UPDATE_VISITED_VIEW', view)
-  },
-  delRightTags({ commit }, view) {
-    return new Promise(resolve => {
-      commit('DEL_RIGHT_VIEWS', view)
-      resolve([...state.visitedViews])
-    })
-  },
-  delLeftTags({ commit }, view) {
-    return new Promise(resolve => {
-      commit('DEL_LEFT_VIEWS', view)
-      resolve([...state.visitedViews])
-    })
-  },
-  // 恢复持久化的 tags
-  loadPersistedViews({ commit }) {
-    const views = loadVisitedViews()
-    views.forEach(view => {
-      commit('ADD_VISITED_VIEW', view)
-    })
-  },
-}
-
-export default {
-  namespaced: true,
-  state,
-  mutations,
-  actions
-}
+export default useTagsViewStore

@@ -42,6 +42,13 @@ nbdist/
 *.xml.versionsBackup
 *.swp
 
+# Old frontend backup
+ruoyi-ui-vue2/
+
+# Frontend
+ruoyi-ui/node_modules/
+ruoyi-ui/dist/
+
 !*/build/*.java
 !*/build/*.html
 !*/build/*.xml
