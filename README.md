@@ -1,115 +1,278 @@
-<p align="center">
-	<img alt="logo" src="https://oscimg.oschina.net/oscnet/up-d3d0a9303e11d522a06cd263f3079027715.png">
-</p>
-<h1 align="center" style="margin: 30px 0 30px; font-weight: bold;">xyjiance v3.9.2</h1>
-<h4 align="center">基于SpringBoot+Vue前后端分离的Java快速开发框架</h4>
-<p align="center">
-	<a href="https://gitee.com/y_project/xyjiance-Vue/stargazers"><img src="https://gitee.com/y_project/xyjiance-Vue/badge/star.svg?theme=dark"></a>
-	<a href="https://gitee.com/y_project/xyjiance-Vue"><img src="https://img.shields.io/badge/xyjiance-v3.9.2-brightgreen.svg"></a>
-	<a href="https://gitee.com/y_project/xyjiance-Vue/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
-</p>
+# 集信管理系统 (xyjiance)
 
-## 平台简介
+基于 Spring Boot + Vue3 前后端分离的**集团企业管理框架**，支持 Web 后台 + 微信小程序双端。
 
-集信是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。
+## 技术栈
 
-* 前端采用Vue、Element UI。
-* 后端采用Spring Boot、Spring Security、Redis & Jwt。
-* 权限认证使用Jwt，支持多终端认证系统。
-* 支持加载动态权限菜单，多方式轻松权限控制。
-* 高效率开发，使用代码生成器可以一键生成前后端代码。
-* 阿里云折扣场：[点我进入](http://aly.xyjiance.vip)，腾讯云秒杀场：[点我进入](http://txy.xyjiance.vip)&nbsp;&nbsp;
+| 层级 | 技术 | 版本 |
+|------|------|------|
+| **后端框架** | Spring Boot | 4.x |
+| **JDK** | Java | 17+ |
+| **构建工具** | Maven | 3.9+ |
+| **安全框架** | Spring Security + JWT | 无状态认证 |
+| **ORM** | MyBatis | 3.x |
+| **数据库** | MySQL | 8.0+ |
+| **连接池** | Druid | 1.2 |
+| **缓存** | Redis | 6.x+ |
+| **分页** | PageHelper | 2.1 |
+| **API文档** | SpringDoc (OpenAPI 3.0) | 3.0 |
+| **定时任务** | Quartz | 2.x |
+| **代码生成** | Velocity 模板引擎 | 2.3 |
+| **Web前端** | Vue 3 + Vite + Element Plus + Pinia | Vue Router 4 |
+| **小程序** | uni-app (Vue 3) + uView Plus | 微信小程序 |
 
-# 版本分支
+## 项目结构
 
-xyjiance-Vue 后端项目提供 Spring Boot 2.x / 3.x / 4.x 多版本分支的并行维护。
+```
+xyjiance3.0/
+├── xyjiance-admin/       # 【后端入口】Spring Boot 启动类 + 所有 Controller
+│   └── src/main/java/com/xyjiance/
+│       ├── XyJianceApplication.java      # 启动入口
+│       └── web/controller/
+│           ├── system/                   # 系统管理（用户/角色/菜单/部门/公司）
+│           ├── monitor/                  # 监控管理（日志/在线用户/服务监控）
+│           └── common/                   # 通用接口（文件上传/验证码）
+│
+├── xyjiance-common/      # 【通用模块】实体类、工具类、注解、异常、枚举
+│   └── src/main/java/com/xyjiance/common/
+│       ├── core/domain/entity/           # 核心实体（SysUser, SysCompany, SysDept, SysRole, SysMenu）
+│       ├── core/domain/model/            # 请求/响应模型（LoginUser, LoginBody, WxLoginBody）
+│       ├── annotation/                  # 注解（@Log, @DataScope, @Anonymous, @RateLimiter 等）
+│       └── utils/                       # 工具类（String, Date, Security, Excel 等）
+│
+├── xyjiance-framework/   # 【框架层】Spring Security 配置、JWT 认证、AOP 切面、Token 服务
+│   └── src/main/java/com/xyjiance/framework/
+│       ├── config/                      # 配置类（Security, CORS, Redis, Druid, MyBatis）
+│       ├── security/                    # JWT 过滤器、认证入口、权限上下文
+│       ├── aspectj/                     # AOP 切面（@Log, @DataScope, @DataSource, @RateLimiter）
+│       ├── web/service/                 # Token 服务、登录服务、微信登录服务
+│       └── datasource/                  # 多数据源动态切换
+│
+├── xyjiance-system/      # 【系统业务】Service + Mapper
+│   └── src/main/java/com/xyjiance/system/
+│       ├── service/                     # 业务接口和实现（用户/角色/公司/部门/菜单/字典等）
+│       └── mapper/                      # MyBatis Mapper 接口
+│   └── src/main/resources/mapper/system/  # MyBatis XML 映射文件
+│
+├── xyjiance-generator/   # 【代码生成器】Velocity 模板，读取数据库表自动生成 CRUD
+├── xyjiance-quartz/      # 【定时任务】Quartz 任务调度模块
+├── xyjiance-ui/          # 【Web 前端】Vue 3 + Vite + Element Plus
+├── xyjiance-app/         # 【小程序端】uni-app (Vue 3) + uView Plus
+├── sql/                  # 数据库脚本
+│   ├── ry_20260417.sql           # 基础建表脚本
+│   ├── ry_20260608_company.sql   # 集团架构迁移脚本
+│   └── ry_20260608_wx.sql        # 微信小程序迁移脚本
+└── pom.xml               # 根 POM（Maven 多模块）
+```
 
-| 名称              | 说明                      | 地址                                                    |
-| :---------------- | :------------------------ | :------------------------------------------------------ |
-| master 默认分支   | Spring Boot 4.x (JDK 17+) | https://gitee.com/y_project/xyjiance-Vue                   |
-| springboot3 分支  | Spring Boot 3.x (JDK 17+) | https://gitee.com/y_project/xyjiance-Vue/tree/springboot3  |
-| springboot2 分支  | Spring Boot 2.x (JDK 8+)  | https://gitee.com/y_project/xyjiance-Vue/tree/springboot2  |  
+## 核心架构设计
 
-xyjiance-Vue 前端项目提供 Vue 2.x / 3.x / JavaScript TypeScript 版本均可混用搭配
+### 1. 集团组织架构（公司 → 部门 → 用户）
 
-| 项目名称      | **xyjiance-Vue** | **xyjiance-Vue3** | **xyjiance-Vue3-TypeScript**   |
-| :---          | :---          | :---           | :---                        |
-| **前端框架**  | Vue 2        | Vue 3          | Vue 3                       |
-| **脚本语言**  | JavaScript   | JavaScript     | TypeScript                  |
-| **构建工具**  | Vue CLI      | Vite           | Vite                        |
-| **UI 组件库** | Element UI   | Element Plus   | Element Plus                |
-| **状态管理**  | Vuex         | Pinia          | Pinia                       |
-| **路由管理**  | Vue Router 3 | Vue Router 4   | Vue Router 4                |
-| **核心特点**  | 1. 技术栈经典稳定<br>2. 社区资料丰富<br>3. 当前维护重心已转移 | 1. 现代前端技术栈<br>2. 开发体验与性能更优<br>3. 官方主推的活跃版本 | 1. 类型加持，减少沟通成本<br>2. 开发时有提示，效率更高<br>3. 多人协作企业级开发项目 |
-| **仓库地址**  | [xyjiance-Vue](https://gitee.com/y_project/xyjiance-Vue) | [xyjiance-Vue3](https://gitcode.com/yangzongzhuan/xyjiance-Vue3) | [xyjiance-Vue3-TypeScript](https://gitcode.com/yangzongzhuan/xyjiance-Vue3/tree/typescript) |
+```
+集信集团(总公司)
+├── A子公司
+│   ├── 研发部 ── 用户
+│   └── 销售部 ── 用户
+├── B子公司
+│   ├── 研发部 ── 用户
+│   └── 财务部 ── 用户
+└── C分公司
+    └── 运维部 ── 用户
+```
 
-## 内置功能
+- `sys_company` — 公司表，树形结构（parentId + ancestors），支持集团-子公司多级
+- `sys_dept` — 部门表，新增 `company_id` 关联所属公司，每个子公司的部门独立
+- `sys_user` — 用户表，新增 `company_id` 主属公司，`dept_id` 所属部门
 
-1.  用户管理：用户是系统操作者，该功能主要完成系统用户配置。
-2.  部门管理：配置系统组织机构（公司、部门、小组），树结构展现支持数据权限。
-3.  岗位管理：配置系统用户所属担任职务。
-4.  菜单管理：配置系统菜单，操作权限，按钮权限标识等。
-5.  角色管理：角色菜单权限分配、设置角色按机构进行数据范围权限划分。
-6.  字典管理：对系统中经常使用的一些较为固定的数据进行维护。
-7.  参数管理：对系统动态配置常用参数。
-8.  通知公告：系统通知公告信息发布维护。
-9.  操作日志：系统正常操作日志记录和查询；系统异常信息日志记录和查询。
-10. 登录日志：系统登录日志记录查询包含登录异常。
-11. 在线用户：当前系统中活跃用户状态监控。
-12. 定时任务：在线（添加、修改、删除)任务调度包含执行结果日志。
-13. 代码生成：前后端代码的生成（java、html、xml、sql）支持CRUD下载 。
-14. 系统接口：根据业务代码自动生成相关的api接口文档。
-15. 服务监控：监视当前系统CPU、内存、磁盘、堆栈等相关信息。
-16. 缓存监控：对系统的缓存信息查询，命令统计等。
-17. 在线构建器：拖动表单元素生成相应的HTML代码。
-18. 连接池监视：监视当前系统数据库连接池状态，可进行分析SQL找出系统性能瓶颈。
+### 2. 认证与权限
 
-## 在线体验
+```
+小程序/浏览器
+    │
+    ├─ POST /login        → 账号密码登录 → 返回 JWT token
+    ├─ POST /wx/login      → 微信 code 登录 → 返回 JWT token
+    │
+    └─ API 请求（Header: Authorization: Bearer <token>)
+            │
+            ├─ JwtAuthenticationTokenFilter  从 Header 解析 token
+            ├─ TokenService                  从 Redis 获取 LoginUser
+            ├─ Spring Security               @PreAuthorize 按钮级权限
+            └─ @DataScope                    数据权限（SQL 注入过滤条件）
+```
 
-- admin/admin123  
-- 陆陆续续收到一些打赏，为了更好的体验已用于演示服务器升级。谢谢各位小伙伴。
+**七级数据权限：**
 
-演示地址：http://vue.xyjiance.vip  
-文档地址：http://doc.xyjiance.vip
+| 级别 | 常量 | 含义 |
+|------|------|------|
+| 1 | DATA_SCOPE_ALL | 全部数据（管理员） |
+| 2 | DATA_SCOPE_CUSTOM | 自定义部门（角色绑定部门列表） |
+| 3 | DATA_SCOPE_DEPT | 本部门数据 |
+| 4 | DATA_SCOPE_DEPT_AND_CHILD | 本部门及子部门 |
+| 5 | DATA_SCOPE_SELF | 仅本人 |
+| 6 | DATA_SCOPE_COMPANY | **本公司全部数据（集团新增）** |
+| 7 | DATA_SCOPE_COMPANY_AND_CHILD | **本公司及下属公司数据（集团新增）** |
 
-## 演示图
+### 3. 前端路由机制
 
-<table>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/cd1f90be5f2684f4560c9519c0f2a232ee8.jpg"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/1cbcf0e6f257c7d3a063c0e3f2ff989e4b3.jpg"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-8074972883b5ba0622e13246738ebba237a.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-9f88719cdfca9af2e58b352a20e23d43b12.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-39bf2584ec3a529b0d5a3b70d15c9b37646.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-936ec82d1f4872e1bc980927654b6007307.png"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-b2d62ceb95d2dd9b3fbe157bb70d26001e9.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-d67451d308b7a79ad6819723396f7c3d77a.png"/></td>
-    </tr>	 
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/5e8c387724954459291aafd5eb52b456f53.jpg"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/644e78da53c2e92a95dfda4f76e6d117c4b.jpg"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-8370a0d02977eebf6dbf854c8450293c937.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-49003ed83f60f633e7153609a53a2b644f7.png"/></td>
-    </tr>
-	<tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-d4fe726319ece268d4746602c39cffc0621.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-c195234bbcd30be6927f037a6755e6ab69c.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/b6115bc8c31de52951982e509930b20684a.jpg"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-5e4daac0bb59612c5038448acbcef235e3a.png"/></td>
-    </tr>
-</table>
+- **Web 端：** `constantRoutes`（登录/404/注册，无需权限）+ 动态路由（后端 `/getRouters` 返回菜单树，前端动态注册）
+- **小程序端：** 不使用 Vue Router，通过 `pages.json` 配置 TabBar，权限通过返回的功能列表控制页面和按钮可见性
 
+### 4. 微信小程序登录流程
 
-## 集信前后端分离交流群
+```
+小程序端                          后端                       微信服务器
+  │                               │                           │
+  ├─  wx.login()                  │                           │
+  │   └─────────────────────────→ │                           │
+  │       POST /wx/login {code}   │                           │
+  │                               ├─  code2session ──────────→│
+  │                               │←── openId + unionId ──────┤
+  │                               ├─ 查 sys_user.wx_open_id   │
+  │                               │   已绑定：生成 JWT token    │
+  │                               │   未绑定：返回 601 状态码  │
+  │←── token / 601 ───────────────┤                           │
+  │                               │                           │
+```
 
-QQ群： [![加入QQ群](https://img.shields.io/badge/已满-937441-blue.svg)](https://jq.qq.com/?_wv=1027&k=5bVB1og) [![加入QQ群](https://img.shields.io/badge/已满-887144332-blue.svg)](https://jq.qq.com/?_wv=1027&k=5eiA4DH) [![加入QQ群](https://img.shields.io/badge/已满-180251782-blue.svg)](https://jq.qq.com/?_wv=1027&k=5AxMKlC) [![加入QQ群](https://img.shields.io/badge/已满-104180207-blue.svg)](https://jq.qq.com/?_wv=1027&k=51G72yr) [![加入QQ群](https://img.shields.io/badge/已满-186866453-blue.svg)](https://jq.qq.com/?_wv=1027&k=VvjN2nvu) [![加入QQ群](https://img.shields.io/badge/已满-201396349-blue.svg)](https://jq.qq.com/?_wv=1027&k=5vYAqA05) [![加入QQ群](https://img.shields.io/badge/已满-101456076-blue.svg)](https://jq.qq.com/?_wv=1027&k=kOIINEb5) [![加入QQ群](https://img.shields.io/badge/已满-101539465-blue.svg)](https://jq.qq.com/?_wv=1027&k=UKtX5jhs) [![加入QQ群](https://img.shields.io/badge/已满-264312783-blue.svg)](https://jq.qq.com/?_wv=1027&k=EI9an8lJ) [![加入QQ群](https://img.shields.io/badge/已满-167385320-blue.svg)](https://jq.qq.com/?_wv=1027&k=SWCtLnMz) [![加入QQ群](https://img.shields.io/badge/已满-104748341-blue.svg)](https://jq.qq.com/?_wv=1027&k=96Dkdq0k) [![加入QQ群](https://img.shields.io/badge/已满-160110482-blue.svg)](https://jq.qq.com/?_wv=1027&k=0fsNiYZt) [![加入QQ群](https://img.shields.io/badge/已满-170801498-blue.svg)](https://jq.qq.com/?_wv=1027&k=7xw4xUG1) [![加入QQ群](https://img.shields.io/badge/已满-108482800-blue.svg)](https://jq.qq.com/?_wv=1027&k=eCx8eyoJ) [![加入QQ群](https://img.shields.io/badge/已满-101046199-blue.svg)](https://jq.qq.com/?_wv=1027&k=SpyH2875) [![加入QQ群](https://img.shields.io/badge/已满-136919097-blue.svg)](https://jq.qq.com/?_wv=1027&k=tKEt51dz) [![加入QQ群](https://img.shields.io/badge/已满-143961921-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=0vBbSb0ztbBgVtn3kJS-Q4HUNYwip89G&authKey=8irq5PhutrZmWIvsUsklBxhj57l%2F1nOZqjzigkXZVoZE451GG4JHPOqW7AW6cf0T&noverify=0&group_code=143961921) [![加入QQ群](https://img.shields.io/badge/已满-174951577-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=ZFAPAbp09S2ltvwrJzp7wGlbopsc0rwi&authKey=HB2cxpxP2yspk%2Bo3WKTBfktRCccVkU26cgi5B16u0KcAYrVu7sBaE7XSEqmMdFQp&noverify=0&group_code=174951577) [![加入QQ群](https://img.shields.io/badge/已满-161281055-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=Fn2aF5IHpwsy8j6VlalNJK6qbwFLFHat&authKey=uyIT%2B97x2AXj3odyXpsSpVaPMC%2Bidw0LxG5MAtEqlrcBcWJUA%2FeS43rsF1Tg7IRJ&noverify=0&group_code=161281055) [![加入QQ群](https://img.shields.io/badge/已满-138988063-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=XIzkm_mV2xTsUtFxo63bmicYoDBA6Ifm&authKey=dDW%2F4qsmw3x9govoZY9w%2FoWAoC4wbHqGal%2BbqLzoS6VBarU8EBptIgPKN%2FviyC8j&noverify=0&group_code=138988063) [![加入QQ群](https://img.shields.io/badge/已满-151450850-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=DkugnCg68PevlycJSKSwjhFqfIgrWWwR&authKey=pR1Pa5lPIeGF%2FFtIk6d%2FGB5qFi0EdvyErtpQXULzo03zbhopBHLWcuqdpwY241R%2F&noverify=0&group_code=151450850) [![加入QQ群](https://img.shields.io/badge/已满-224622315-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=F58bgRa-Dp-rsQJThiJqIYv8t4-lWfXh&authKey=UmUs4CVG5OPA1whvsa4uSespOvyd8%2FAr9olEGaWAfdLmfKQk%2FVBp2YU3u2xXXt76&noverify=0&group_code=224622315) [![加入QQ群](https://img.shields.io/badge/已满-287842588-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=Nxb2EQ5qozWa218Wbs7zgBnjLSNk_tVT&authKey=obBKXj6SBKgrFTJZx0AqQnIYbNOvBB2kmgwWvGhzxR67RoRr84%2Bus5OadzMcdJl5&noverify=0&group_code=287842588) [![加入QQ群](https://img.shields.io/badge/已满-187944233-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=numtK1M_I4eVd2Gvg8qtbuL8JgX42qNh&authKey=giV9XWMaFZTY%2FqPlmWbkB9g3fi0Ev5CwEtT9Tgei0oUlFFCQLDp4ozWRiVIzubIm&noverify=0&group_code=187944233) [![加入QQ群](https://img.shields.io/badge/已满-228578329-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=G6r5KGCaa3pqdbUSXNIgYloyb8e0_L0D&authKey=4w8tF1eGW7%2FedWn%2FHAypQksdrML%2BDHolQSx7094Agm7Luakj9EbfPnSTxSi2T1LQ&noverify=0&group_code=228578329) [![加入QQ群](https://img.shields.io/badge/已满-191164766-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=GsOo-OLz53J8y_9TPoO6XXSGNRTgbFxA&authKey=R7Uy%2Feq%2BZsoKNqHvRKhiXpypW7DAogoWapOawUGHokJSBIBIre2%2FoiAZeZBSLuBc&noverify=0&group_code=191164766) [![加入QQ群](https://img.shields.io/badge/已满-174569686-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=PmYavuzsOthVqfdAPbo4uAeIbu7Ttjgc&authKey=p52l8%2FXa4PS1JcEmS3VccKSwOPJUZ1ZfQ69MEKzbrooNUljRtlKjvsXf04bxNp3G&noverify=0&group_code=174569686) [![加入QQ群](https://img.shields.io/badge/127358632-blue.svg)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=M9y5NjAl44lAL_Vh2crmEehZU_PMU6KS&authKey=ZSDz8hEREWSaPuxQV3gEwqGIaGjfRNnkB4rJjf0IvXhrSUGSGwQFmBA%2Boe8HFxyl&noverify=0&group_code=127358632) 点击按钮入群。
+## 快速启动
+
+### 环境要求
+
+- JDK 17+
+- Maven 3.9+
+- MySQL 8.0+
+- Redis 6.x+
+- Node.js 18+
+
+### 后端
+
+```bash
+# 1. 创建数据库并导入脚本
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS ry_vue DEFAULT CHARSET utf8mb4"
+mysql -u root -p ry_vue < sql/ry_20260417.sql
+mysql -u root -p ry_vue < sql/ry_20260608_company.sql
+mysql -u root -p ry_vue < sql/ry_20260608_wx.sql
+
+# 2. 修改 application-druid.yml 中的数据库连接信息
+
+# 3. 启动
+mvn clean compile -DskipTests
+# 运行 xyjiance-admin 中的 XyJianceApplication.java 的 main 方法
+# 或：mvn spring-boot:run -pl xyjiance-admin
+```
+
+后端默认端口 `8080`，Druid 监控 `/druid/`，API 文档 `/swagger-ui.html`
+
+### Web 前端
+
+```bash
+cd xyjiance-ui
+npm install
+npm run dev          # 开发模式，端口 80，代理 API 到 8080
+npm run build:prod   # 生产构建
+```
+
+### 微信小程序
+
+```bash
+cd xyjiance-app
+npm install
+npm run dev:mp-weixin   # 编译为微信小程序
+# 用微信开发者工具打开 dist/dev/mp-weixin/
+```
+
+修改 `src/manifest.json` 中的 `mp-weixin.appid` 为实际小程序 AppID。
+
+## 开发注意事项
+
+### 后端开发
+
+1. **数据权限**：使用 `@DataScope` 注解自动注入部门/公司过滤条件。方法的入参必须是 `BaseEntity` 子类，并在 Mapper XML 的 SQL 末尾引用 `${params.dataScope}`
+2. **权限控制**：Controller 方法用 `@PreAuthorize("@ss.hasPermi('权限标识')")`，对应 `sys_menu` 表的 `perms` 字段
+3. **匿名访问**：用 `@Anonymous` 注解标记不需认证的接口（如微信登录）
+4. **操作日志**：用 `@Log(title, businessType)` 记录关键操作
+5. **代码生成**：修改 `xyjiance-generator` 的 `generator.yml` 配置后，访问代码生成页面，基于数据库表自动生成前后端 CRUD 代码
+
+### 集团架构开发注意
+
+1. **新增实体必须关联公司**：所有业务实体表都需要 `company_id` 字段来支持公司级数据隔离
+2. **SQL 查询必须带 dataScope**：Mapper XML 中的查询语句末尾必须引用 `${params.dataScope}`，否则数据权限不生效
+3. **公司树独立于部门树**：`sys_company` 和 `sys_dept` 是两棵独立的树，部门通过 `company_id` 关联公司
+4. **跨公司查询**：集团管理员可配置「本公司及下属公司」权限（dataScope=7）实现跨子公司数据汇总
+5. **用户主属公司**：用户有 `company_id`（主属公司）和 `dept_id`（部门），默认按公司隔离数据
+
+### 前端开发注意
+
+1. **环境变量**：使用 `VITE_` 前缀（如 `VITE_APP_BASE_API`），配置在 `.env.*` 文件中
+2. **权限指令**：`v-hasPermi` 和 `v-hasRole` 控制按钮/元素可见性
+3. **请求封装**：`@/utils/request.js` 统一处理 token 携带和过期跳转
+4. **工具函数**：`@/utils/xyjiance.js` 提供日期格式化、字典回显、树形构造等通用函数
+5. **新增页面路由**：
+   - **Web 端**：在 `sys_menu` 表添加菜单记录（组件路径指向 `@/views/` 下的 `.vue` 文件），角色分配菜单权限后前端动态加载
+   - **小程序端**：在 `src/pages.json` 的 `pages` 数组中注册页面路径，TabBar 页面在 `tabBar.list` 中配置
+
+### 小程序开发注意
+
+1. **无 Router**：uni-app 小程序不使用 Vue Router，页面跳转用 `uni.navigateTo` / `uni.switchTab` / `uni.reLaunch`
+2. **Token 存储**：使用 `uni.setStorageSync`（替代 Web 端的 js-cookie）
+3. **请求封装**：使用 `uni.request`（替代 axios），拦截器通过 `uni.addInterceptor` 实现
+4. **微信登录**：首次登录需在前端引导用户绑定已有系统账号（返回 601 状态码时）
+5. **组件兼容**：Element Plus 不可用于小程序端，必须使用 uView Plus 或 uni-ui 组件
+6. **页面生命周期**：使用 `onLoad`/`onShow`/`onReady`/`onHide`（替代 Vue 的 `mounted`/`created`）
+7. **条件编译**：若需跨平台差异化代码，使用 `#ifdef MP-WEIXIN` / `#endif` 注释
+
+### 跨端通用注意
+
+- **API 接口统一**：Web 端和小程序端调用同一套后端 API，认证方式均为 `Authorization: Bearer <token>`
+- **响应格式**：统一 `{ code: 200, msg: "...", data: ... }` 或分页 `{ code: 200, msg: "...", rows: [...], total: N }`
+- **字典缓存**：前端取 `sys_dict_data` 做本地缓存，小程序端建议持久化到 `uni.setStorage`
+- **文件上传**：Web 端用 `FormData`，小程序端用 `uni.uploadFile`，后端统一接收 `multipart/form-data`
+
+## 常用注解一览
+
+| 注解 | 位置 | 作用 |
+|------|------|------|
+| `@Anonymous` | ruoyi-common | 标记接口可匿名访问（无需 token） |
+| `@Log` | ruoyi-common | 操作日志记录，配合 AOP 切面 |
+| `@DataScope` | ruoyi-common | 数据权限过滤，注入 SQL 条件到 Mapper XML |
+| `@DataSource` | ruoyi-common | 切换数据源（主/从） |
+| `@RateLimiter` | ruoyi-common | 接口限流 |
+| `@RepeatSubmit` | ruoyi-common | 防止重复提交 |
+| `@Sensitive` | ruoyi-common | 数据脱敏（字段级） |
+| `@Excel` / `@Excels` | ruoyi-common | Excel 导入导出列映射 |
+| `@PreAuthorize("@ss.hasPermi('...')")` | Spring Security | 按钮级权限控制 |
+
+## 配置文件说明
+
+| 文件 | 说明 |
+|------|------|
+| `xyjiance-admin/src/main/resources/application.yml` | 主配置：端口、Redis、token、MyBatis、SpringDoc、XSS |
+| `xyjiance-admin/src/main/resources/application-druid.yml` | 数据源：主从库、Druid 连接池、监控页面 |
+| `xyjiance-admin/src/main/resources/logback.xml` | 日志配置：路径、级别、滚动策略 |
+| `xyjiance-generator/src/main/resources/generator.yml` | 代码生成器：作者、包路径、表前缀 |
+| `xyjiance-ui/.env.development` | 前端开发环境变量 |
+| `xyjiance-ui/.env.production` | 前端生产环境变量 |
+| `xyjiance-ui/vite.config.js` | Vite 构建配置 + API 代理 |
+| `xyjiance-app/vite.config.js` | uni-app 构建配置 + API 代理 |
+| `xyjiance-app/src/manifest.json` | 微信小程序 AppID 配置 |
+| `xyjiance-app/src/pages.json` | 小程序路由 + TabBar 配置 |
+
+## 数据库表说明
+
+| 表名 | 说明 | 关键字段 |
+|------|------|---------|
+| `sys_company` | **公司表（新增）** | company_id, parent_id, ancestors |
+| `sys_dept` | 部门表 | dept_id, company_id, parent_id |
+| `sys_user` | 用户表 | user_id, company_id, dept_id, wx_open_id, wx_union_id |
+| `sys_role` | 角色表 | role_id, role_key, data_scope(1-7) |
+| `sys_menu` | 菜单权限表 | menu_id, perms, menu_type(M目录/C菜单/F按钮) |
+| `sys_role_dept` | 角色-部门关联 | role_id, dept_id（自定义数据权限用） |
+| `sys_user_role` | 用户-角色关联 | user_id, role_id |
+| `sys_dict_data` / `sys_dict_type` | 字典数据/类型 | — |
+| `sys_config` | 系统参数表 | config_key, config_value |
+| `sys_notice` | 通知公告表 | — |
+| `sys_logininfor` | 登录日志 | — |
+| `sys_oper_log` | 操作日志 | — |
+| `sys_post` | 岗位表 | — |
+| `sys_job` / `sys_job_log` | 定时任务/日志 | quartz 模块 |

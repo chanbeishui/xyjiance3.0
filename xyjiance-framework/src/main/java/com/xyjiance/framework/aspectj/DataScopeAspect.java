@@ -125,6 +125,22 @@ public class DataScopeAspect
                     sqlString.append(StringUtils.format(" OR {}.{} = 0 ", deptAlias, deptField));
                 }
             }
+            else if (Constants.Dept.DATA_SCOPE_COMPANY.equals(dataScope))
+            {
+                // 本公司全部数据权限：通过部门表关联的 company_id 过滤
+                if (user.getCompanyId() != null && user.getCompanyId() > 0)
+                {
+                    sqlString.append(StringUtils.format(" OR {}.company_id = {} ", deptAlias, user.getCompanyId()));
+                }
+            }
+            else if (Constants.Dept.DATA_SCOPE_COMPANY_AND_CHILD.equals(dataScope))
+            {
+                // 本公司及下属公司数据权限
+                if (user.getCompanyId() != null && user.getCompanyId() > 0)
+                {
+                    sqlString.append(StringUtils.format(" OR {}.company_id IN ( SELECT company_id FROM sys_company WHERE company_id = {} or find_in_set( {} , ancestors ) )", deptAlias, user.getCompanyId(), user.getCompanyId()));
+                }
+            }
             conditions.add(dataScope);
         }
 

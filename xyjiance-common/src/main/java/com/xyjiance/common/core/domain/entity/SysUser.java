@@ -77,6 +77,10 @@ public class SysUser extends BaseEntity
     /** 密码最后更新时间 */
     private Date pwdUpdateDate;
 
+    /** 所属公司ID */
+    @Excel(name = "公司编号", type = Type.IMPORT)
+    private Long companyId;
+
     /** 部门对象 */
     @Excels({
         @Excel(name = "部门名称", targetAttr = "deptName", type = Type.EXPORT),
@@ -95,6 +99,12 @@ public class SysUser extends BaseEntity
 
     /** 角色ID */
     private Long roleId;
+
+    /** 微信小程序 openId */
+    private String wxOpenId;
+
+    /** 微信开放平台 unionId */
+    private String wxUnionId;
 
     public SysUser()
     {
@@ -129,6 +139,16 @@ public class SysUser extends BaseEntity
     public void setDeptId(Long deptId)
     {
         this.deptId = deptId;
+    }
+
+    public Long getCompanyId()
+    {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId)
+    {
+        this.companyId = companyId;
     }
 
     @Xss(message = "用户昵称不能包含脚本字符")
@@ -308,6 +328,26 @@ public class SysUser extends BaseEntity
     public void setRoleId(Long roleId)
     {
         this.roleId = roleId;
+    }
+
+    public String getWxOpenId()
+    {
+        return wxOpenId;
+    }
+
+    public void setWxOpenId(String wxOpenId)
+    {
+        this.wxOpenId = wxOpenId;
+    }
+
+    public String getWxUnionId()
+    {
+        return wxUnionId;
+    }
+
+    public void setWxUnionId(String wxUnionId)
+    {
+        this.wxUnionId = wxUnionId;
     }
 
     @Override

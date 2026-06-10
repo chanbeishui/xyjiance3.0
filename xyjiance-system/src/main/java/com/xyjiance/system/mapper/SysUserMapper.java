@@ -144,4 +144,22 @@ public interface SysUserMapper
      * @return 结果
      */
     public SysUser checkEmailUnique(String email);
+
+    /**
+     * 通过微信 openId 查询用户
+     *
+     * @param wxOpenId 微信 openId
+     * @return 用户对象信息
+     */
+    public SysUser selectUserByOpenId(String wxOpenId);
+
+    /**
+     * 绑定微信 openId 到用户
+     *
+     * @param userId 用户ID
+     * @param wxOpenId 微信 openId
+     * @param wxUnionId 微信 unionId
+     * @return 结果
+     */
+    public int bindWxOpenId(@Param("userId") Long userId, @Param("wxOpenId") String wxOpenId, @Param("wxUnionId") String wxUnionId);
 }

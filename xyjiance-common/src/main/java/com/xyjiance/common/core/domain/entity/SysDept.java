@@ -43,6 +43,9 @@ public class SysDept extends BaseEntity
     /** 邮箱 */
     private String email;
 
+    /** 所属公司ID */
+    private Long companyId;
+
     /** 部门状态:0正常,1停用 */
     private String status;
 
@@ -139,6 +142,16 @@ public class SysDept extends BaseEntity
     public void setEmail(String email)
     {
         this.email = email;
+    }
+
+    public Long getCompanyId()
+    {
+        return companyId;
+    }
+
+    public void setCompanyId(Long companyId)
+    {
+        this.companyId = companyId;
     }
 
     public String getStatus()

@@ -200,5 +200,15 @@ public class Constants
          * 仅本人数据权限
          */
         public static final String DATA_SCOPE_SELF = "5";
+
+        /**
+         * 本公司全部数据权限
+         */
+        public static final String DATA_SCOPE_COMPANY = "6";
+
+        /**
+         * 本公司及下属公司数据权限
+         */
+        public static final String DATA_SCOPE_COMPANY_AND_CHILD = "7";
     }
 }
